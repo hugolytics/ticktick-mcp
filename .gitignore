@@ -10,7 +10,7 @@
 # Icon must end with two \r
 Icon
 
-
+memory-bank
 # Thumbnails
 ._*
 
@@ -239,3 +239,8 @@ pyrightconfig.json
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/python,macos,visualstudiocode
+memory-bank/systemPatterns.md
+.github/architect.chatmode.md
+.github/ask.chatmode.md
+.github/code.chatmode.md
+.github/debug.chatmode.md

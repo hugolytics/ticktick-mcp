@@ -10,8 +10,8 @@ from dotenv import load_dotenv
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%((asctime)s)s - %(levelname)s - %(message)s',
-    stream=sys.stderr
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    stream=sys.stderr,
 )
 
 # Required credentials
@@ -20,7 +20,7 @@ REQUIRED = [
     "TICKTICK_CLIENT_SECRET",
     "TICKTICK_REDIRECT_URI",
     "TICKTICK_USERNAME",
-    "TICKTICK_PASSWORD"
+    "TICKTICK_PASSWORD",
 ]
 
 # Setup argument parser for optional dotenv-dir flag
@@ -30,7 +30,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument(
     "--dotenv-dir",
     type=str,
-    help="Path to the directory containing the .env file. If omitted and all credentials are in the environment, no .env is loaded."
+    help="Path to the directory containing the .env file. If omitted and all credentials are in the environment, no .env is loaded.",
 )
 args = parser.parse_args()
 
@@ -51,32 +51,39 @@ else:
         sys.exit(1)
     # Path to .env
     dotenv_path = dotenv_dir / ".env"
-    # If credentials missing, require .env file
-    if not env_complete and not dotenv_path.is_file():
+    # If credentials missing and .env file exists, load it
+    if dotenv_path.is_file():
+        loaded = load_dotenv(override=True, dotenv_path=dotenv_path)
+        if loaded:
+            logging.info(f"Loaded environment variables from: {dotenv_path}")
+        else:
+            logging.error(f"Failed to load environment variables from {dotenv_path}")
+            sys.exit(1)
+    elif not env_complete:
+        # No .env file and missing environment variables
         logging.error(f"Required .env file not found at {dotenv_path}")
-        logging.error("Please create the .env file with your TickTick credentials.")
-        logging.error("Expected content:")
+        logging.error(
+            "Please create the .env file with your TickTick credentials or set environment variables."
+        )
+        logging.error("Expected environment variables:")
         logging.error("  TICKTICK_CLIENT_ID=your_client_id")
         logging.error("  TICKTICK_CLIENT_SECRET=your_client_secret")
         logging.error("  TICKTICK_REDIRECT_URI=your_redirect_uri")
         logging.error("  TICKTICK_USERNAME=your_ticktick_email")
         logging.error("  TICKTICK_PASSWORD=your_ticktick_password")
         sys.exit(1)
-    # Load .env if file exists (regardless of explicit)
-    loaded = load_dotenv(override=True, dotenv_path=dotenv_path)
-    if loaded:
-        logging.info(f"Loaded environment variables from: {dotenv_path}")
     else:
-        if dotenv_path.is_file():
-            logging.error(f"Failed to load environment variables from {dotenv_path}")
-            sys.exit(1)
-        else:
-            # This branch when env_complete but user passed --dotenv-dir but file missing
-            logging.info(f"No .env file at {dotenv_path}; relying on environment variables.")
+        logging.info(
+            f"No .env file at {dotenv_path}; relying on environment variables."
+        )
 
 # --- Environment Variable Loading --- #
-CLIENT_ID     = os.getenv("TICKTICK_CLIENT_ID")
+CLIENT_ID = os.getenv("TICKTICK_CLIENT_ID")
 CLIENT_SECRET = os.getenv("TICKTICK_CLIENT_SECRET")
-REDIRECT_URI  = os.getenv("TICKTICK_REDIRECT_URI")
-USERNAME      = os.getenv("TICKTICK_USERNAME")
-PASSWORD      = os.getenv("TICKTICK_PASSWORD")
+REDIRECT_URI = os.getenv("TICKTICK_REDIRECT_URI")
+USERNAME = os.getenv("TICKTICK_USERNAME")
+PASSWORD = os.getenv("TICKTICK_PASSWORD")
+
+# Make dotenv_dir_path available for token caching
+# Use the same logic as above to determine the directory
+dotenv_dir_path = Path(args.dotenv_dir or "~/.config/ticktick-mcp").expanduser()
