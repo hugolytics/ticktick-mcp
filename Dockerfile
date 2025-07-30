@@ -32,7 +32,7 @@ RUN pip install --no-cache-dir --no-deps /tmp/wheels/*.whl \
  && rm -rf /tmp/wheels
 
 # copy your HTTP‑wrapper script
-COPY --chown=mcp:mcp main_http.py /app/main_http.py
+COPY --chown=mcp:mcp src/main_http.py /app/main_http.py
 RUN chmod +x /app/main_http.py
 
 EXPOSE 8150
