@@ -16,7 +16,6 @@ from .config import (
     dotenv_dir_path,
 )
 
-log = logging.getLogger(__name__)
 
 # Global client variable -> Removed, replaced by singleton
 # ticktick_client: Optional[TickTickClient] = None
@@ -69,8 +68,8 @@ class TickTickClientSingleton:
             )
             auth_url = auth_client.get_authorization_url()
             # Explicitly log and also print+flush so it's visible in detached/container logs.
-            log.info("🔗  Open this URL in your browser: %s", auth_url)
-            print(f"🔗  Open this URL in your browser: {auth_url}", flush=True)
+            logging.info(f"🔗  Open this URL in your browser: {auth_url}")
+
             auth_client.get_access_token()  # Might trigger interactive OAuth flow
 
             logging.info(f"Initializing TickTickClient with username: {USERNAME}")
