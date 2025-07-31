@@ -36,13 +36,26 @@ def parse_args():
         choices=["stdio", "streamable-http", "sse"],
         help="MCP transport (env SERVER_TRANSPORT or flag)",
     )
-
+    parser.add_argument(
+        "--host",
+        default=os.getenv("SERVER_HOST", "0.0.0.0"),
+        help="Bind address (env SERVER_HOST or flag)",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=int(os.getenv("SERVER_PORT", "8150")),
+        help="Port to listen on (env SERVER_PORT or flag)",
+    )
     return parser.parse_args()
 
 
 # --- Main Execution Logic --- #
 def main():
     args = parse_args()
+    mcp.settings.port = args.port
+    mcp.settings.host = args.host
+
     mcp.run(transport=args.transport)
 
 
