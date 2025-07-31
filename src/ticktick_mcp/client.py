@@ -1,5 +1,6 @@
 import logging
 from typing import Optional
+import webbrowser
 
 # TickTick library imports
 from ticktick.api import TickTickClient
@@ -64,9 +65,10 @@ class TickTickClientSingleton:
                 redirect_uri=REDIRECT_URI,
                 cache_path=dotenv_dir_path / ".token-oauth",  # Use path from config
             )
+            auth_url = auth_client.get_authorization_url()
             print(
                 "🔗  Open this URL in your browser:",
-                auth_client.get_authorization_url(),
+                auth_url,
             )
             auth_client.get_access_token()  # Might trigger interactive OAuth flow
 
