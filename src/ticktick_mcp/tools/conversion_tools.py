@@ -60,3 +60,14 @@ async def ticktick_convert_datetime_to_ticktick_format(datetime_iso_string: str,
     except Exception as e:
         logging.error(f"Conversion failed for '{datetime_iso_string}' (TZ: '{tz}'): {e}", exc_info=True)
         return format_response({"error": f"Conversion failed: {e}", "status": "error"}) 
+
+
+@mcp.tool()
+async def healthcheck() -> str:
+    """
+    [Health Check] Simple health check tool that returns server status.
+    
+    Returns:
+        A JSON string indicating the server is healthy and operational.
+    """
+    return format_response({"status": "ok", "message": "TickTick MCP server is healthy"})

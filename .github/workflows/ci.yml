@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[dev]
+      - name: Run unit tests
+        run: pytest -m "not integration"
+
+  integration:
+    needs: unit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[dev] httpx pytest-asyncio
+      - name: Run integration tests
+        run: pytest -m integration -q
+
+  docker-smoke:
+    needs: unit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build & smoke test docker
+        run: |
+          docker build -t mcp:test .
+          docker run -d --rm \
+            -p 8150:8150 \
+            -e SERVER_TRANSPORT=http \
+            -e SERVER_PORT=8150 \
+            -e TICKTICK_CLIENT_ID=dummy \
+            -e TICKTICK_CLIENT_SECRET=dummy \
+            -e TICKTICK_REDIRECT_URI=http://x \
+            -e TICKTICK_USERNAME=d@x \
+            -e TICKTICK_PASSWORD=p \
+            --name mcp mcp:test
+          sleep 10
+          # Test with a simple JSON-RPC call to healthcheck tool
+          curl -f -X POST http://localhost:8150/ \
+            -H "Content-Type: application/json" \
+            -d '{"jsonrpc":"2.0","id":"test","method":"tools/call","params":{"name":"healthcheck","arguments":{}}}'
+          docker kill mcp

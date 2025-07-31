@@ -37,11 +37,6 @@ def parse_args():
         help="MCP transport (env SERVER_TRANSPORT or flag)",
     )
     parser.add_argument(
-        "--host",
-        default=os.getenv("SERVER_HOST", "0.0.0.0"),
-        help="Bind address (env SERVER_HOST or flag)",
-    )
-    parser.add_argument(
         "--port",
         type=int,
         default=int(os.getenv("SERVER_PORT", "8150")),
@@ -53,7 +48,7 @@ def parse_args():
 # --- Main Execution Logic --- #
 def main():
     args = parse_args()
-    mcp.run(transport=args.transport, host=args.host, port=args.port)
+    mcp.run(transport=args.transport, port=args.port)
 
 
 # --- Script Entry Point --- #
