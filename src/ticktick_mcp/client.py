@@ -1,6 +1,6 @@
 import logging
 from typing import Optional
-import webbrowser
+
 
 # TickTick library imports
 from ticktick.api import TickTickClient
@@ -60,6 +60,7 @@ class TickTickClientSingleton:
             logging.info(
                 f"Initializing OAuth2 with cache path: {dotenv_dir_path / '.token-oauth'}"
             )
+            logging.info("new version")
             auth_client = OAuth2(
                 client_id=CLIENT_ID,
                 client_secret=CLIENT_SECRET,
